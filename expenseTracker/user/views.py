@@ -44,7 +44,7 @@ def getUsers(request):
 def userRegister(request):
     serializer = UserSerializer(data=request.data)
     
-    if not request.data.get('email') or not request.data.get('password') or not request.data.get('role'):
+    if not request.data.get('email') or not request.data.get('password') or not request.data.get('mobile_no') or not request.data.get('name'):
         return Response({'status': 'error', 'message': 'All Feilds are required'})
 
     # Validate the serializer data
@@ -74,12 +74,10 @@ def userRegister(request):
 @api_view(['POST'])
 def userLogin(request):
     
-    name = request.data.get('name')
     email = request.data.get('email')
     password = request.data.get('password')
-    mobile_no = request.data.get('mobile_no')
 
-    if not email or not password or not mobile_no:
+    if not email or not password:
         response  = {
             'status': 'error',
             'message': "All Feild Required",
@@ -94,20 +92,19 @@ def userLogin(request):
                          'message': 'User does not exist',
                          'status_code': status.HTTP_204_NO_CONTENT})
     
+    
     if is_valid_email(email) and user.verifyPassword(password):  # Use check_password for hashed passwords
+        user_data = UserSerializer(user).data
         response = Response({
             'status': 'success',
             'message': 'Login successful',
-            'user': {
-                'email': user.email,
-                'user_id': user.user_id,
-                'role': user.role
-            }
+            'user': user_data,
+            "status" : status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
 
         expires_at = datetime.datetime.utcnow() + datetime.timedelta(days=1)
-        response.set_cookie('user_id', user.user_id, expires=expires_at, httponly=True, samesite='None', secure=secure)
-        response.set_cookie('email', user.email, expires=expires_at, httponly=True, samesite='None', secure=secure)
+        response.set_cookie('user_id', user.user_id, expires=expires_at, httponly=True, samesite='None')
+        response.set_cookie('email', user.email, expires=expires_at, httponly=True, samesite='None')
         
         return response
 

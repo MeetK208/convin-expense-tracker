@@ -16,7 +16,7 @@ class AuthenticationMiddleware(MiddlewareMixin):
         if request.path.startswith('/login/') or request.path.startswith('/static/'):
             return None
         email_id = request.COOKIES.get('email')
-        user_id = request.COOKIES.get('userId')
+        user_id = request.COOKIES.get('user_id')
         if not user_id or not email_id:
             login_url = reverse('user-login')  # This will generate '/auth/login/' assuming 'login' is the URL name
             response  = {

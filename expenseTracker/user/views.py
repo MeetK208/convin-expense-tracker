@@ -22,7 +22,7 @@ logger = setup_console_logger()
 def getUsers(request):
     user_id = request.COOKIES.get('user_id')
     email = request.COOKIES.get('email')
-    
+    print(user_id, email)
     if not user_id or not email:
         response  = {
             'status': 'error',
@@ -31,11 +31,13 @@ def getUsers(request):
         }
         return Response(response)
     
-    data = User.queryfilter(User.user_id != user_id).all()
+    data = User.objects.exclude(user_id=user_id).all()
     serializer = UserSerializer(data, many = True)
+    user_count = len(data)
     return Response({'status': 'success',
         'message': "All Registered Data",
         'status_code': status.HTTP_200_OK,
+        "available_user_count": user_count,
         "data" : serializer.data,
     })
 
@@ -92,13 +94,16 @@ def userLogin(request):
                          'message': 'User does not exist',
                          'status_code': status.HTTP_204_NO_CONTENT})
     
-    
+    print("here")
     if is_valid_email(email) and user.verifyPassword(password):  # Use check_password for hashed passwords
-        user_data = UserSerializer(user).data
         response = Response({
             'status': 'success',
             'message': 'Login successful',
-            'user': user_data,
+            'user': {
+                "user_id":user.user_id, 
+                "name" : user.name,
+                "email":user.email,
+            },
             "status" : status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
 

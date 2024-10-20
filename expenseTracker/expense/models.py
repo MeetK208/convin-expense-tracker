@@ -45,21 +45,3 @@ class Participant(models.Model):
 
     def __str__(self):
         return f"{self.user.name} - {self.expense.expense_id} - {self.expense.description}"
-
-class Balance(models.Model):
-    """Model to represent the balances between users"""
-    
-    balance_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_balances')
-    owes_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owed_by_balances')
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'owes_user'], name='unique_balance'),
-            models.CheckConstraint(check=~models.Q(user=models.F('owes_user')), name='prevent_self_owe')
-        ]
-
-    def __str__(self):
-        return f"{self.user.name} owes {self.owes_user.name} - {self.amount}"

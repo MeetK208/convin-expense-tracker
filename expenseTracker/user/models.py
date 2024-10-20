@@ -8,7 +8,8 @@ class User(models.Model):
     email = models.EmailField(max_length=255, unique=True)
     password = models.CharField(max_length=255)
     mobile_no = models.CharField(max_length=12)
-    created_at = models.DateTimeField(default=datetime.datetime.utcnow)
+    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=255)
     
     def verifyPassword(self, raw_password):
         return pbkdf2_sha256.verify(raw_password, self.password)

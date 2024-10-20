@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import JsonResponse
 
 # Existing about_me_data dictionary
 about_me_data = {
@@ -36,5 +37,5 @@ urlpatterns = [
     path('auth/', include('user.urls')),
     path('expenses/', include('expense.urls')),
     path('balance/', include('balancesheet.urls')),
-    path('about/', about_me_view, name='about_me'),  # Add this line
+    path('', about_me_view, name='about_me'),  # Add this line
 ]

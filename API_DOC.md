@@ -574,22 +574,6 @@ This endpoint retrieves the individual balance sheet for the authenticated user.
   }
   ```
 
----
-
-## Error Handling
-Each endpoint provides detailed error messages for various failure scenarios. Common status codes include:
-- `200 OK` for successful requests.
-- `400 BAD REQUEST` for client-side errors, such as authentication failures.
-- `404 NOT FOUND` for missing users.
-- `500 INTERNAL SERVER ERROR` for server-side issues.
-
-## Middleware
-Authentication is enforced using a custom middleware (`AuthenticationMiddleware`), which verifies that the user is authenticated before processing the request.
-
-## Logging
-The application uses a console logger (`setup_console_logger()`) to log important events and errors, aiding in debugging and monitoring.
-
----
 
 Feel free to modify or expand upon this template as needed to fit your project requirements! -->
 
@@ -967,3 +951,171 @@ This document outlines the API endpoints for managing user accounts and expenses
     "message": "Total percentages must add up to 100.",
     "status_code":
   ```
+
+---
+
+# API Documentation for Balance Sheet
+
+## Overview
+
+This document outlines the API endpoints for managing balance sheets in a daily expenses sharing application. The application allows users to track their expenses and generate balance sheets that can be viewed or downloaded as PDF reports.
+
+## Endpoints
+
+### 1. Overall Balance Sheet
+
+**URL:** `/api/overall-balance-sheet/`
+**Method:** `GET`
+**Authentication:** Required (through middleware)
+
+#### Description
+
+This endpoint retrieves the overall balance sheet for the authenticated user, showing total expenses created, amounts owed, and amounts paid. It also provides details on expenses where the user is involved, either as a creator or a participant.
+
+#### Request Parameters
+
+- `download` (optional): A boolean value (`true` or `false`) to indicate if the response should be in PDF format.
+
+#### Response
+
+- **Status Code:** `200 OK` - On success, with the following JSON structure:
+
+  ```json
+  {
+    "user_id": "string",
+    "total_expenses_created": "float",
+    "total_owed_by_user": "float",
+    "total_paid_by_user": "float",
+    "give_expenses": [
+      {
+        "expense_id": "string",
+        "description": "string",
+        "created_by": "string",
+        "is_creator": "boolean",
+        "total_owed": "float",
+        "give_to": {
+          "user_name": "string",
+          "amount": "float"
+        }
+      }
+    ],
+    "get_expenses": [
+      {
+        "expense_id": "string",
+        "description": "string",
+        "created_by": "string",
+        "is_creator": "boolean",
+        "total_paid": "float",
+        "owes": [
+          {
+            "user_name": "string",
+            "amount_owed": "float"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+- **Status Code:** `404 NOT FOUND` - If the user is not found:
+
+  ```json
+  {
+    "status": "error",
+    "message": "User not found.",
+    "status_code": 404
+  }
+  ```
+
+- **Status Code:** `500 INTERNAL SERVER ERROR` - On unexpected errors:
+  ```json
+  {
+    "status": "error",
+    "message": "string",
+    "status_code": 500
+  }
+  ```
+
+---
+
+### 2. Individual Balance Sheet
+
+**URL:** `/api/individual-balance-sheet/`
+**Method:** `GET`
+**Authentication:** Required (through middleware)
+
+#### Description
+
+This endpoint retrieves the individual balance sheet for the authenticated user. It displays the total expenses paid by the user, a detailed list of those expenses, and the total amount owed to the user by others.
+
+#### Request Parameters
+
+- `download` (optional): A boolean value (`true` or `false`) to indicate if the response should be in PDF format.
+
+#### Response
+
+- **Status Code:** `200 OK` - On success, with the following JSON structure:
+
+  ```json
+  {
+    "user_id": "string",
+    "total_expenses": "float",
+    "expenses": [
+      {
+        "expense_id": "string",
+        "description": "string",
+        "user_expense": "float"
+      }
+    ],
+    "total_user_expenses": "float",
+    "total_owed_to_user": "float"
+  }
+  ```
+
+- **Status Code:** `400 BAD REQUEST` - If authentication fails (no user_id in cookies):
+
+  ```json
+  {
+    "status": "error",
+    "message": "Authentication Failed",
+    "status_code": 400
+  }
+  ```
+
+- **Status Code:** `404 NOT FOUND` - If the user is not found:
+
+  ```json
+  {
+    "status": "error",
+    "message": "User not found.",
+    "status_code": 404
+  }
+  ```
+
+- **Status Code:** `500 INTERNAL SERVER ERROR` - On unexpected errors:
+  ```json
+  {
+    "status": "error",
+    "message": "string",
+    "status_code": 500
+  }
+  ```
+
+## Error Handling
+
+Each endpoint provides detailed error messages for various failure scenarios. Common status codes include:
+
+- `200 OK` for successful requests.
+- `400 BAD REQUEST` for client-side errors, such as authentication failures.
+- `404 NOT FOUND` for missing users.
+- `500 INTERNAL SERVER ERROR` for server-side issues.
+
+## Middleware
+
+Authentication is enforced using a custom middleware (`AuthenticationMiddleware`), which verifies that the user is authenticated before processing the request.
+
+## Logging
+
+The application uses a console logger (`setup_console_logger()`) to log important events and errors, aiding in debugging and monitoring.
+
+---

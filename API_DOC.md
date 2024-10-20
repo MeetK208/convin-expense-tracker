@@ -579,11 +579,74 @@ Feel free to modify or expand upon this template as needed to fit your project r
 
 ---
 
-# API Documentation for Daily Expenses Sharing Application
+Sure! Here’s a structured explanation for your API documentation based on the functionalities you've outlined:
+
+---
+
+# Daily Expenses Sharing Application API Documentation
 
 ## Overview
 
-This document outlines the API endpoints for managing user accounts and expenses in a daily expenses sharing application. The application allows users to register, log in, manage expenses, and generate balance sheets, which can be viewed or downloaded as PDF reports.
+This API provides endpoints to manage and retrieve user and expense data for a daily expenses sharing application. It supports operations such as user management, expense management, generating balance sheets, and downloading reports in PDF format.
+
+## Functionalities/Features of the API:
+
+### User Management
+
+1. **Create New User:**
+
+   - **Endpoint:** `/create-user/`
+   - **Method:** `POST`
+   - **Description:** Registers a new user by providing details such as name, email, and state.
+   - **Error Handling:** Checks for duplicate users based on email.
+
+2. **View All Users:**
+
+   - **Endpoint:** `/users/`
+   - **Method:** `GET`
+   - **Description:** Retrieves a list of all registered users with pagination support.
+   - **Pagination:** Allows users to specify the number of users per page and fetch subsequent pages.
+
+3. **Search User by ID:**
+   - **Endpoint:** `/users/{user_id}/`
+   - **Method:** `GET`
+   - **Description:** Searches for a specific user by their ID and returns their details.
+
+### Expense Management
+
+1. **Create New Expense:**
+
+   - **Endpoint:** `/create-expense/`
+   - **Method:** `POST`
+   - **Description:** Allows users to create new expenses by providing details like amount, description, and participants.
+   - **Error Handling:** Validates input formats and prevents duplicate expense entries.
+
+2. **View All Expenses:**
+
+   - **Endpoint:** `/expenses/`
+   - **Method:** `GET`
+   - **Description:** Fetches all recorded expenses with pagination support.
+   - **Pagination:** Users can set the number of expenses displayed per page.
+
+3. **View Expense Details:**
+   - **Endpoint:** `/expenses/{expense_id}/`
+   - **Method:** `GET`
+   - **Description:** Retrieves detailed information about a specific expense.
+
+### Balance Sheet Generation
+
+1. **Generate Balance Sheet:**
+
+   - **Endpoint:** `/generate-balance-sheet/`
+   - **Method:** `GET`
+   - **Description:** Generates a balance sheet for the authenticated user, detailing all expenses they are involved in, including amounts paid and owed.
+   - **Response:** Provides a summary of payments and a download link for the balance sheet.
+
+2. **Download Balance Sheet as PDF:**
+   - **Endpoint:** `/download-balance-sheet/`
+   - **Method:** `GET`
+   - **Description:** Initiates a download of the user's balance sheet in PDF format.
+---
 
 ## User Management APIs
 

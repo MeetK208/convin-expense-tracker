@@ -17,9 +17,24 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# Existing about_me_data dictionary
+about_me_data = {
+    "name": "Meet Kothari",
+    "education": "Pursuing post-graduation at the Dhirubhai Ambani Institute of Information and Communication Technology",
+    "about": "With a strong background in data engineering, I have experience with technologies like Python, Apache Airflow, SQL, AWS, Docker, and BigQuery.",
+    "resume_link": "https://drive.google.com/file/d/1JdXJR5ZBGbcPkslxHYLH3ZPiYYQzJnIt/view?usp=sharing",
+    "github_link": "https://github.com/MeetK208/",
+    "linkedin": "https://www.linkedin.com/in/meetkothari208/",
+    "email": "meetkothari208@gmail.com"
+}
+
+def about_me_view(request):
+    return JsonResponse(about_me_data)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('user.urls')),
     path('expenses/', include('expense.urls')),
     path('balance/', include('balancesheet.urls')),
+    path('about/', about_me_view, name='about_me'),  # Add this line
 ]

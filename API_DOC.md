@@ -743,12 +743,6 @@ This document outlines the API endpoints for managing user accounts and expenses
 
 ## Expense Management APIs
 
-### Base URL
-
-```
-/expenses/
-```
-
 ### 1. Get Expense Details
 
 - **Endpoint:** `/getexpensesbyid`
@@ -955,12 +949,6 @@ This document outlines the API endpoints for managing user accounts and expenses
 ---
 
 # API Documentation for Balance Sheet
-
-## Overview
-
-This document outlines the API endpoints for managing balance sheets in a daily expenses sharing application. The application allows users to track their expenses and generate balance sheets that can be viewed or downloaded as PDF reports.
-
-## Endpoints
 
 ### 1. Overall Balance Sheet
 

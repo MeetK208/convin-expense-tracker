@@ -593,8 +593,6 @@ The application uses a console logger (`setup_console_logger()`) to log importan
 
 Feel free to modify or expand upon this template as needed to fit your project requirements! -->
 
-Here's a structured and detailed API documentation based on your provided endpoints:
-
 ---
 
 # API Documentation for Daily Expenses Sharing Application
@@ -607,7 +605,7 @@ This document outlines the API endpoints for managing user accounts and expenses
 
 ### 1. Get Users API
 
-- **Endpoint:** `/api/get-users/`
+- **Endpoint:** `/auth/getusers/`
 - **Method:** `GET`
 - **Description:** Fetches a list of all registered users except the authenticated user.
 
@@ -646,7 +644,7 @@ This document outlines the API endpoints for managing user accounts and expenses
 
 ### 2. User Registration API
 
-- **Endpoint:** `/api/register/`
+- **Endpoint:** `/auth/register/`
 - **Method:** `POST`
 - **Description:** Registers a new user by saving their data after encrypting the password.
 
@@ -689,7 +687,7 @@ This document outlines the API endpoints for managing user accounts and expenses
 
 ### 3. User Login API
 
-- **Endpoint:** `/api/login/`
+- **Endpoint:** `/auth/login`
 - **Method:** `POST`
 - **Description:** Authenticates the user by verifying email and password.
 
@@ -822,7 +820,7 @@ This document outlines the API endpoints for managing user accounts and expenses
 
 ### 2. Equal Distribution
 
-- **Endpoint:** `/equal`
+- **Endpoint:** `/expenses/equal`
 - **Method:** `POST`
 - **Description:** Creates an expense and splits the total amount equally among specified users.
 
@@ -876,7 +874,7 @@ This document outlines the API endpoints for managing user accounts and expenses
 
 ### 3. Unequal Distribution
 
-- **Endpoint:** `/unequal`
+- **Endpoint:** `/expenses/unequal`
 - **Method:** `POST`
 - **Description:** Creates an expense with specified amounts for each user, ensuring the total matches the specified amount.
 
@@ -924,7 +922,7 @@ This document outlines the API endpoints for managing user accounts and expenses
 
 ### 4. Percentage Distribution
 
-- **Endpoint:** `/percentage`
+- **Endpoint:** `/expenses/percentage`
 - **Method:** `POST`
 - **Description:** Creates an expense with specified percentage splits for each user, validating that the total percentages sum to 100.
 

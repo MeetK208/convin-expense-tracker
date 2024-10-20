@@ -948,11 +948,11 @@ This document outlines the API endpoints for managing user accounts and expenses
 
 ---
 
-# API Documentation for Balance Sheet
+# Balance Sheet APIs
 
 ### 1. Overall Balance Sheet
 
-**URL:** `/api/overall-balance-sheet/`
+**URL:** `/balance/overall-sheet?download=false`
 **Method:** `GET`
 **Authentication:** Required (through middleware)
 
@@ -1028,7 +1028,7 @@ This endpoint retrieves the overall balance sheet for the authenticated user, sh
 
 ### 2. Individual Balance Sheet
 
-**URL:** `/api/individual-balance-sheet/`
+**URL:** `/balance/individual-sheet?download=false`
 **Method:** `GET`
 **Authentication:** Required (through middleware)
 

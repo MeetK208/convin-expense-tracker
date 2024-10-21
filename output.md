@@ -1,7 +1,3 @@
-Here’s a structured version with descriptions for each screenshot based on your API:
-
----
-
 ## Base URL Page with My Introduction
 
 ![alt text](./images/image.png)

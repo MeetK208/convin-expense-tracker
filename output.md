@@ -8,7 +8,7 @@ This is the homepage of the application, showcasing my introduction, educational
 
 ![alt text](./images/image10.png)
 
-This screenshot displays the endpoint that lists all registered users in the application with pagination support. It retrieves and shows user information like customer ID and name.
+This screenshot displays the endpoint that lists all registered users in the application. It retrieves and shows user information like user ID, E-mail and name.
 
 ---
 

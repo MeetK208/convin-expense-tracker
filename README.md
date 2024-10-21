@@ -74,11 +74,11 @@ python manage.py runserver
 
 ## API Documentation
 
-    [APIs Doc](https://github.com/MeetK208/convin-expense-tracker/blob/main/API_DOC.md)
+    API Documentation Link[APIs Doc](https://github.com/MeetK208/convin-expense-tracker/blob/main/API_DOC.md).
 
 ## Screenshots
 
-    [APIs Output ScreenShots](https://github.com/MeetK208/convin-expense-tracker/blob/main/output.md)
+    APIs Screesnhots[APIs Output ScreenShots](https://github.com/MeetK208/convin-expense-tracker/blob/main/output.md)
 
 ## Notes
 

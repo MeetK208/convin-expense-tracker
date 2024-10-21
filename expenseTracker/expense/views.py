@@ -59,36 +59,31 @@ def get_expense_details(request):
         })
 
     
+    
 @api_view(['POST'])
 @decorator_from_middleware(AuthenticationMiddleware)
 def equalDistribution(request):
+    logger.info("Processing equal distribution for expense")
     
-    # Extract user_id and email from cookies
     user_id = request.COOKIES.get('user_id')
     email_id = request.COOKIES.get('email')
     
-    # Retrieve input data from the request
-    user_list = request.data.get('user_list')  # List of user IDs involved
-    total_amount = request.data.get('total_amount')  # Total expense amount
-    description = request.data.get('description')  # Description of the expense
-    
-    # Ensure authentication data is present
+    user_list = request.data.get('user_list')
+    total_amount = request.data.get('total_amount')
+    description = request.data.get('description')
+
     if not user_id or not email_id:
-        response = {
+        logger.error("Authentication failed. User ID or email missing from cookies")
+        return Response({
             'status': 'error',
-            'message': "Authentication Failed",
+            'message': "Authentication failed.",
             'status_code': status.HTTP_400_BAD_REQUEST,
-        }
-        return Response(response)
+        })
 
     try:
-        # Calculate equal share for each user
         each_user_share = round(total_amount / (len(user_list) * 1.0), 2)
-        
-        # Fetch the user who created the expense
         user = User.objects.get(user_id=user_id)
         
-        # Add data to the Expense table
         expense_data = {
             'description': description,
             'total_amount': total_amount,
@@ -98,37 +93,33 @@ def equalDistribution(request):
         }
         expense = Expense.objects.create(**expense_data)
         
-        # List to store participant details for the response
         participant_details = []
 
-        # Loop through each user and create entries in the Participant table
-        with transaction.atomic():  # Use transaction for database integrity
+        with transaction.atomic():
             for user_in_list in user_list:
                 participant_user = User.objects.get(user_id=int(user_in_list['user_id']))
-                amount_owed = each_user_share if participant_user.user_id != int(user_id) else 0  # Creator doesn't owe
-                amount_paid = total_amount if participant_user.user_id == int(user_id) else 0  # Creator paid total
+                amount_owed = each_user_share if participant_user.user_id != int(user_id) else 0
+                amount_paid = total_amount if participant_user.user_id == int(user_id) else 0
 
-                # Create participant entry
                 participant = Participant.objects.create(
                     expense=expense,
                     user=participant_user,
                     amount_paid=amount_paid,
                     amount_owed=amount_owed,
-                    split_expenses = each_user_share
+                    split_expenses=each_user_share
                 )
                 
-                # Append participant details for the response
                 participant_details.append({
                     'user_id': participant_user.user_id,
                     'user_name': participant_user.name,
                     'amount_paid': amount_paid,
                     'amount_owed': amount_owed
                 })
-        
-        # Success response
-        response = {
+
+        logger.info(f"Equal expense added successfully. Expense ID: {expense.expense_id}")
+        return Response({
             'status': 'success',
-            'message': 'Expense successfully added and split equally.',
+            'message': 'Expense added and split equally among participants.',
             'expense_id': expense.expense_id,
             'description': expense.description,
             'total_amount': expense.total_amount,
@@ -136,10 +127,10 @@ def equalDistribution(request):
             'each_user_share': each_user_share,
             "no_of_participants": len(user_list),
             'participants': participant_details
-        }
-        return Response(response, status=status.HTTP_201_CREATED)
+        }, status=status.HTTP_201_CREATED)
     
     except User.DoesNotExist:
+        logger.error("User not found during equal distribution.")
         return Response({
             'status': 'error',
             'message': 'User not found.',
@@ -147,13 +138,12 @@ def equalDistribution(request):
         })
     
     except Exception as e:
-        # Handle any exceptions and return error response
-        response = {
+        logger.exception("An error occurred during equal distribution")
+        return Response({
             'status': 'error',
             'message': str(e),
             'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR
-        }
-        return Response(response)
+        })
 
 
 @api_view(['POST'])
@@ -163,37 +153,39 @@ def unequalDistribution(request):
     # Extract user_id and email from cookies
     user_id = request.COOKIES.get('user_id')
     email_id = request.COOKIES.get('email')
-    
+    logger.info(f"Request received for unequalDistribution by user {user_id}.")
+
     # Retrieve input data from the request
     user_list = request.data.get('user_list')  # List of user IDs and their specific contributions
     total_amount = request.data.get('total_amount')  # Total expense amount
     description = request.data.get('description')  # Description of the expense
+    logger.debug(f"Input data: user_list={user_list}, total_amount={total_amount}, description={description}")
     
     # Validate the sum of user contributions
-    sum = 0
-    for user_amount in user_list:
-        sum += float(user_amount["amount"])
+    total_contributions = sum(float(user_amount["amount"]) for user_amount in user_list)
     
-    if round(sum, 2) != round(float(total_amount), 2):
+    if round(total_contributions, 2) != round(float(total_amount), 2):
+        logger.error("Total split does not match the total amount.")
         return Response({
             'status': 'error',
-            'message': "Split does not sum up to the total amount. Please check.",
+            'message': "The sum of user contributions does not match the total amount. Please check.",
             'status_code': status.HTTP_400_BAD_REQUEST,
         })        
     
     # Ensure authentication data is present
     if not user_id or not email_id:
-        response = {
+        logger.warning("Authentication failed: Missing user_id or email.")
+        return Response({
             'status': 'error',
-            'message': "Authentication Failed",
+            'message': "Authentication failed. Please log in and try again.",
             'status_code': status.HTTP_400_BAD_REQUEST,
-        }
-        return Response(response)
+        })
 
     try:
         # Fetch the user who created the expense
         user = User.objects.get(user_id=user_id)
-        
+        logger.info(f"User {user_id} found. Proceeding to create the expense.")
+
         # Add data to the Expense table
         expense_data = {
             'description': description,
@@ -203,16 +195,17 @@ def unequalDistribution(request):
             'total_user': len(user_list),
         }
         expense = Expense.objects.create(**expense_data)
-        
+        logger.info(f"Expense created with ID: {expense.expense_id}")
+
         # List to store participant details for the response
         participant_details = []
 
         # Loop through each user in the request and create entries in the Participant table
         with transaction.atomic():  # Use transaction for database integrity
             for participant_info in user_list:
-                participant_user = User.objects.get(user_id= int(participant_info['user_id']))
-                amount_paid = total_amount if participant_info['user_id'] == int(user_id) else 0  # Default to 0 if not provided
-                amount_owed = 0 if participant_info['user_id'] == int(user_id) else participant_info.get('amount', 0)  # Default to 0 if not provided
+                participant_user = User.objects.get(user_id=int(participant_info['user_id']))
+                amount_paid = total_amount if participant_info['user_id'] == int(user_id) else 0
+                amount_owed = 0 if participant_info['user_id'] == int(user_id) else participant_info.get('amount', 0)
                 each_user_share = participant_info.get('amount', 0)
                 
                 # Create participant entry
@@ -221,7 +214,7 @@ def unequalDistribution(request):
                     user=participant_user,
                     amount_paid=amount_paid,
                     amount_owed=amount_owed,
-                    split_expenses = each_user_share
+                    split_expenses=each_user_share
                 )
                 
                 # Append participant details for the response
@@ -232,20 +225,23 @@ def unequalDistribution(request):
                     'amount_owed': amount_owed,
                     'split_expenses': each_user_share
                 })
-        
+                logger.debug(f"Participant added: {participant_user.user_id}, amount_owed={amount_owed}, amount_paid={amount_paid}")
+
         # Success response
         response = {
             'status': 'success',
-            'message': 'Expense successfully added with custom splits.',
+            'message': 'Expense successfully recorded with custom splits.',
             'expense_id': expense.expense_id,
             'description': expense.description,
             'total_amount': expense.total_amount,
             'split_method': expense.split_method,
             'participants': participant_details
         }
+        logger.info("Expense and participant details successfully saved.")
         return Response(response, status=status.HTTP_201_CREATED)
     
     except User.DoesNotExist:
+        logger.error(f"User with user_id {user_id} not found.")
         return Response({
             'status': 'error',
             'message': 'User not found.',
@@ -254,16 +250,126 @@ def unequalDistribution(request):
         
     except Exception as e:
         # Handle any exceptions and return error response
-        response = {
+        logger.exception("An error occurred while processing the request.")
+        return Response({
             'status': 'error',
             'message': str(e),
             'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR
-        }
-        return Response(response)
+        })
+
 
 @api_view(['POST'])
 @decorator_from_middleware(AuthenticationMiddleware)
 def percentageDistribution(request):
+    
+    # Extract user_id and email from cookies
+    user_id = request.COOKIES.get('user_id')
+    email_id = request.COOKIES.get('email')
+    logger.info(f"Request received for percentageDistribution by user {user_id}.")
+
+    # Retrieve input data from the request
+    user_list = request.data.get('user_list')  # List of user IDs and their percentage contributions
+    total_amount = request.data.get('total_amount')  # Total expense amount
+    description = request.data.get('description')  # Description of the expense
+    logger.debug(f"Input data: user_list={user_list}, total_amount={total_amount}, description={description}")
+    
+    # Validate the total percentage sum
+    total_percentage = sum(float(user_percentage["percentage"]) for user_percentage in user_list)
+    
+    if round(total_percentage, 2) != 100.00:
+        logger.error("Total percentages do not add up to 100%.")
+        return Response({
+            'status': 'error',
+            'message': "The total of percentages does not add up to 100%. Please check.",
+            'status_code': status.HTTP_400_BAD_REQUEST,
+        })
+    
+    # Ensure authentication data is present
+    if not user_id or not email_id:
+        logger.warning("Authentication failed: Missing user_id or email.")
+        return Response({
+            'status': 'error',
+            'message': "Authentication failed. Please log in and try again.",
+            'status_code': status.HTTP_400_BAD_REQUEST,
+        })
+
+    try:
+        # Fetch the user who created the expense
+        user = User.objects.get(user_id=user_id)
+        logger.info(f"User {user_id} found. Proceeding to create the expense.")
+
+        # Add data to the Expense table
+        expense_data = {
+            'description': description,
+            'total_amount': total_amount,
+            'split_method': 'PERCENTAGE',
+            'created_by': user,
+            'total_user': len(user_list),
+        }
+        expense = Expense.objects.create(**expense_data)
+        logger.info(f"Expense created with ID: {expense.expense_id}")
+
+        # List to store participant details for the response
+        participant_details = []
+
+        # Loop through each user in the request and create entries in the Participant table
+        with transaction.atomic():  # Use transaction for database integrity
+            for participant_info in user_list:
+                participant_user = User.objects.get(user_id=int(participant_info['user_id']))
+                each_user_share = (float(participant_info['percentage']) / 100) * float(total_amount)
+                amount_paid = total_amount if participant_info['user_id'] == int(user_id) else 0
+                amount_owed = each_user_share if participant_info['user_id'] != int(user_id) else 0
+                
+                # Create participant entry
+                participant = Participant.objects.create(
+                    expense=expense,
+                    user=participant_user,
+                    amount_paid=amount_paid,
+                    amount_owed=amount_owed,
+                    split_expenses=each_user_share
+                )
+                
+                # Append participant details for the response
+                participant_details.append({
+                    'user_id': participant_user.user_id,
+                    'user_name': participant_user.name,
+                    'percentage': participant_info['percentage'],
+                    'amount_paid': amount_paid,
+                    'amount_owed': amount_owed,
+                    'split_expenses': each_user_share
+                })
+                logger.debug(f"Participant added: {participant_user.user_id}, amount_owed={amount_owed}, amount_paid={amount_paid}")
+
+        # Success response
+        response = {
+            'status': 'success',
+            'message': 'Expense successfully recorded with percentage-based splits.',
+            'expense_id': expense.expense_id,
+            'description': expense.description,
+            'total_amount': expense.total_amount,
+            'split_method': expense.split_method,
+            'participants': participant_details
+        }
+        logger.info("Expense and participant details successfully saved.")
+        return Response(response, status=status.HTTP_201_CREATED)
+    
+    except User.DoesNotExist:
+        logger.error(f"User with user_id {user_id} not found.")
+        return Response({
+            'status': 'error',
+            'message': 'User not found.',
+            'status_code': status.HTTP_404_NOT_FOUND
+        })
+        
+    except Exception as e:
+        # Handle any exceptions and return error response
+        logger.exception("An error occurred while processing the request.")
+        return Response({
+            'status': 'error',
+            'message': str(e),
+            'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR
+        })
+
     
     # Extract user_id and email from cookies
     user_id = request.COOKIES.get('user_id')

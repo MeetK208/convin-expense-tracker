@@ -82,8 +82,8 @@ def generate_overall_balance_sheet_pdf(response_data):
     total_paid_by_user = response_data['total_paid_by_user']
     give_expenses = response_data['give_expenses']
     get_expenses = response_data['get_expenses']
-    user_name = response_data.get('user_name', 'N/A')
-    user_email = response_data.get('user_email', 'N/A')
+    user_name = response_data.get('name', 'N/A')
+    user_email = response_data.get('email', 'N/A')
 
     # Define a stylesheet
     styles = getSampleStyleSheet()

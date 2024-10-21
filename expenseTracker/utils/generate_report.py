@@ -19,26 +19,24 @@ def generate_balance_sheet_pdf(response_data):
     expenses = response_data['expenses']
     total_user_expenses = response_data['total_user_expenses']
     total_owed_to_user = response_data['total_owed_to_user']
+    user_name = response_data.get('user_name', 'N/A')
+    user_email = response_data.get('user_email', 'N/A')
     
     # Define a stylesheet
     styles = getSampleStyleSheet()
     title_style = styles['Heading1']
     normal_style = styles['Normal']
 
-    # Title
-    title = Paragraph(f"Balance Sheet for User ID: {user_id}", title_style)
+    # Title with user info
+    title = Paragraph(f"Balance Sheet for {user_name} ({user_email})", title_style)
     elements.append(title)
+    elements.append(Spacer(1, 12))
 
     # Total expenses summary
-    total_expenses_paragraph = Paragraph(f"<b>Total Expenses:</b> {total_expenses}", normal_style)
-    elements.append(total_expenses_paragraph)
-    total_user_expenses_paragraph = Paragraph(f"<b>Total User Expenses:</b> {total_user_expenses}", normal_style)
-    elements.append(total_user_expenses_paragraph)
-    total_owed_to_user_paragraph = Paragraph(f"<b>Total Owed to User:</b> {total_owed_to_user}", normal_style)
-    elements.append(total_owed_to_user_paragraph)
-    
-    # Add some space
-    elements.append(Paragraph("<br/><br/>", normal_style))
+    elements.append(Paragraph(f"<b>Total Expenses:</b> {total_expenses:.2f}", normal_style))
+    elements.append(Paragraph(f"<b>Total User Expenses:</b> {total_user_expenses:.2f}", normal_style))
+    elements.append(Paragraph(f"<b>Total Owed to User:</b> {total_owed_to_user:.2f}", normal_style))
+    elements.append(Spacer(1, 12))
 
     # Table header and data
     data = [['Expense ID', 'Description', 'User Expense']]
@@ -68,7 +66,6 @@ def generate_balance_sheet_pdf(response_data):
     return response
 
 
-
 def generate_overall_balance_sheet_pdf(response_data):
     # Create the HttpResponse object with PDF headers
     response = HttpResponse(content_type='application/pdf')
@@ -85,24 +82,23 @@ def generate_overall_balance_sheet_pdf(response_data):
     total_paid_by_user = response_data['total_paid_by_user']
     give_expenses = response_data['give_expenses']
     get_expenses = response_data['get_expenses']
-    
+    user_name = response_data.get('user_name', 'N/A')
+    user_email = response_data.get('user_email', 'N/A')
+
     # Define a stylesheet
     styles = getSampleStyleSheet()
     title_style = styles['Heading1']
     normal_style = styles['Normal']
 
-    # Title
-    title = Paragraph(f"Overall Balance Sheet for User ID: {user_id}", title_style)
+    # Title with user info
+    title = Paragraph(f"Overall Balance Sheet for {user_name} ({user_email})", title_style)
     elements.append(title)
     elements.append(Spacer(1, 12))
 
     # Summary
-    total_created_paragraph = Paragraph(f"<b>Total Expenses Created:</b> {total_expenses_created:.2f}", normal_style)
-    elements.append(total_created_paragraph)
-    total_paid_paragraph = Paragraph(f"<b>Total Paid by User:</b> {total_paid_by_user:.2f}", normal_style)
-    elements.append(total_paid_paragraph)
-    total_owed_paragraph = Paragraph(f"<b>Total Owed by User:</b> {total_owed_by_user:.2f}", normal_style)
-    elements.append(total_owed_paragraph)
+    elements.append(Paragraph(f"<b>Total Expenses Created:</b> {total_expenses_created:.2f}", normal_style))
+    elements.append(Paragraph(f"<b>Total Paid by User:</b> {total_paid_by_user:.2f}", normal_style))
+    elements.append(Paragraph(f"<b>Total Owed by User:</b> {total_owed_by_user:.2f}", normal_style))
     elements.append(Spacer(1, 12))
 
     # Expenses where user has to give (Owes money)

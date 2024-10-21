@@ -31,6 +31,8 @@ def overallBalanceSheet(request):
         # Prepare the response data
         dashboard_data = {
             'user_id': user_id,
+            'name': user.name,
+            'email': user.email,
             'total_expenses_created': 0.0,
             'total_owed_by_user': 0.0,
             'total_paid_by_user': 0.0,
@@ -140,6 +142,8 @@ def individualBalanceSheet(request):
             })
         response_data = {
                 'user_id': user.user_id,
+                'name': user.name,
+                'email': user.email,
                 'total_expenses': total_expenses,  # Total amount paid by the user for all expenses
                 'expenses': expenses_details,  # Detailed list of expenses
                 'total_user_expenses': total_own_expenses,

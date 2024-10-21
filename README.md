@@ -83,7 +83,3 @@ python manage.py runserver
 ## Notes
 
 - Ensure that Python 3.8+ is installed.
-
----
-
-This setup file should help you run and test your Convin assignment with clear instructions.

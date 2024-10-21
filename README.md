@@ -74,11 +74,11 @@ python manage.py runserver
 
 ## API Documentation
 
-    API Documentation Link[APIs Doc](/API_DOC.md).
+[APIs Doc](/API_DOC.md)
 
 ## Screenshots
 
-    APIs Screesnhots[APIs Output ScreenShots](output.md)
+[APIs Output ScreenShots](output.md)
 
 ## Notes
 
